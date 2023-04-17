@@ -21,14 +21,41 @@ class NeuralNetwork(nn.Module):
             nn.Softmax(dim=1)
         )
 
+        self.bias=torch.rand(0) # Tensor,  (0.000145)
+
 
     def forward(self, x): # (1,28,28)
-        x = self.flatten(x) #  -> (512,28*28)
-        prob = self.linear_relu_stack(x) # ->  (512,10)
+        # y=x^3+x^2+e^-x+0.000145
+        y=torch.pow(x,3)+torch.pow(x,2)+torch.exp(-x)+self.bias
         return prob
 
 model = NeuralNetwork()
 model = model.to(device)
+
+model = torch.compile(model)
+model(x)
+
+model=triton.compile(model,confi={'gpu':'gpu1,gpu2','node':'node1,node2'})
+model(x)
+
+l1=nn.Linear(28*28, 512),  # W=(28*28,512) ,B=(0.01,0.2,,,.......512个) ->
+l2=nn.ReLU(), # 激活函数, activation，Relu(X)
+l3=nn.Linear(512, 512),
+l4=nn.ReLU(),
+l5=nn.Linear(512, 10),
+l6=nn.Softmax(dim=1)
+
+import triton
+
+
+@tf.function
+def forward(x):
+    x=l1(x)
+    x=l2(x)
+    x=l3(x)
+    x=l4(x)
+    x=l5(x)
+    return x
 
 X = torch.rand(15, 28, 28, device=device)
 #print(X.shape,X.dtype)

@@ -48,12 +48,12 @@ print(y3)
 #y1 = tensor @ tensor.T
 #y2 = tensor.matmul(tensor.T)
 
-tensor1=torch.Tensor([1,2,3])
-tensor2=torch.Tensor([3,2,1])
+tensor1=torch.tensor([1,2,3])
+tensor2=torch.tensor([3,2,1])
 z1 = tensor1 * tensor2
 print(z1)
 
-tensor1=torch.Tensor([
+tensor1=torch.tensor([
    [ 1,2,3 ],
    [ 2,1,4 ],
 ])
@@ -62,7 +62,7 @@ tensor3=torch.sqrt(tensor2)
 print(tensor3)
 
 
-tensor=torch.Tensor([
+tensor=torch.tensor([
    [ 1,2,3 ],
    [ 2,1,4 ],
 ])
