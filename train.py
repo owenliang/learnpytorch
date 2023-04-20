@@ -19,6 +19,7 @@ if __name__ == '__main__':
         transform=ToTensor()
     )
 
+
     train_dataloader = DataLoader(training_data, batch_size=128,num_workers=8,pin_memory=True)
     test_dataloader = DataLoader(test_data, batch_size=128,num_workers=8,pin_memory=True)
 
@@ -51,6 +52,7 @@ if __name__ == '__main__':
 
     def train_loop(dataloader, model, loss_fn, optimizer):
         size = len(dataloader.dataset)
+        model.train() # dropout和batch normalize
         for batch, (X, y) in enumerate(dataloader):
             # Compute prediction and loss
             X=X.to('cuda')
@@ -84,6 +86,7 @@ if __name__ == '__main__':
         num_batches = len(dataloader) # 10000/64
         test_loss, correct = 0, 0
 
+        model.eval() # 不要启动dropout和normalize层
         with torch.no_grad():
             for X, y in dataloader: # 10000张图片
                 X=X.to('cuda')
