@@ -5,6 +5,17 @@ https://pytorch.org/tutorials/
 
 pip3 install torch torchvision torchaudio
 
+# dep
+
+```
+install pytorch first
+
+install yolo dep:
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+
+install image label tool:
+pip3 install labelImg  -i https://mirrors.aliyun.com/pypi/simple/
+```
 
 ## yolo  train
 
