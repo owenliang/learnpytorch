@@ -65,7 +65,7 @@ print(tensor3)
 tensor=torch.tensor([
    [ 1,2,3 ],
    [ 2,1,4 ],
-])
+],dtype=torch.float32)
 agg = tensor.sum()
 print(agg)
 agg_item = agg.item()
