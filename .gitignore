@@ -2,3 +2,9 @@
 *.txt
 *.jpg
 *.png
+yolov5-master
+vocdataset
+runs
+datasets
+data
+*.pth
