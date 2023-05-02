@@ -109,24 +109,24 @@ class VOCSegDataset(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     print('loading model...')
-    weights=FCN_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1
-    model = torch.hub.load("pytorch/vision", "fcn_resnet50", weights=weights)
+    #weights=FCN_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1
+    #model = torch.hub.load("pytorch/vision", "fcn_resnet50", weights=weights)
 
     # 这个模型尺寸小，可以装进GPU，https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
-    #weights=LRASPP_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1
-    #model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights) 
+    weights=LRASPP_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1
+    model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights) 
 
     print('loading dataset...')
     dataset=VOCSegDataset(True,crop_size=(320, 480),voc_dir='./vocdataset/VOCdevkit/VOC2012/')
 
     # 多分类交叉熵,不需要自己做softmax
     loss_fn=torch.nn.CrossEntropyLoss()
-    optimizer=torch.optim.Adam(model.parameters(),lr=0.0001)
+    optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
 
     # 开始训练
     print('starting train...')
     epoch=1000
-    dataloader=torch.utils.data.DataLoader(dataset,batch_size=64,shuffle=True,num_workers=8) # 需要用高内存的服务器跑，否则会OOM
+    dataloader=torch.utils.data.DataLoader(dataset,batch_size=32,shuffle=True,num_workers=4) # 需要用高内存的服务器跑，否则会OOM
     model.train()
     for i in range(epoch):
         batch_i=0
