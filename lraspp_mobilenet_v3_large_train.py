@@ -6,10 +6,10 @@ import numpy as np
 # 基于VOC数据集的预训练lraspp语义分割模型 https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
 from torchvision.models.segmentation import FCN_ResNet50_Weights,LRASPP_MobileNet_V3_Large_Weights
 
-'''
+
 # 用pytorch来下载VOC数据集到本地,但是不使用它的dataset,我们自己定义一个预处理简单点的dataset
-dataset=torchvision.datasets.VOCSegmentation('vocdataset',image_set='train',download=True)
-'''
+# 首次运行打开注释下载数据集，后续训练注释掉
+# dataset=torchvision.datasets.VOCSegmentation('vocdataset',image_set='train',download=True)
 
 # target每种分类对应的颜色，一共21种分类，对应21种颜色
 VOC_COLORMAP = [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     # 开始训练
     print('starting train...')
     epoch=1000
-    dataloader=torch.utils.data.DataLoader(dataset,batch_size=8,shuffle=True,num_workers=4) # 电脑内存不够，只能小batch了
+    dataloader=torch.utils.data.DataLoader(dataset,batch_size=64,shuffle=True,num_workers=8) # 需要用高内存的服务器跑，否则会OOM
     model.train()
     for i in range(epoch):
         batch_i=0
