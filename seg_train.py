@@ -114,7 +114,10 @@ if __name__ == '__main__':
 
     # 这个模型尺寸小，可以装进GPU，https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
     weights=LRASPP_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1
-    model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights) 
+    model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights,skip_validation=True) 
+
+    # GPU
+    model=model.to('cuda')
 
     print('loading dataset...')
     dataset=VOCSegDataset(True,crop_size=(320, 480),voc_dir='./vocdataset/VOCdevkit/VOC2012/')
@@ -122,20 +125,33 @@ if __name__ == '__main__':
     # 多分类交叉熵,不需要自己做softmax
     loss_fn=torch.nn.CrossEntropyLoss()
     optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
+    scaler = torch.cuda.amp.GradScaler()
 
     # 开始训练
     print('starting train...')
-    epoch=1000
-    dataloader=torch.utils.data.DataLoader(dataset,batch_size=32,shuffle=True,num_workers=4) # 需要用高内存的服务器跑，否则会OOM
+    epoch=100
+    # 大batch导致中间结果占用内存多（因为要留着做backward计算用），所以需要控好batch_size和显存的关系
+    dataloader=torch.utils.data.DataLoader(dataset,batch_size=32,shuffle=True,num_workers=8,persistent_workers=True,pin_memory=True) 
     model.train()
     for i in range(epoch):
         batch_i=0
         for inputs,targets in dataloader:
             #print(inputs.shape,targets.shape)
-            outputs=model(inputs)
-            loss=loss_fn(outputs['out'],targets)
+            # GPU
+            inputs=inputs.to('cuda')
+            targets=targets.to('cuda')
             optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            # outputs=model(inputs)
+            # loss=loss_fn(outputs['out'],targets)   
+            # loss.backward()
+            # optimizer.step()
+            # 混合精度，降低显存压力
+            with torch.cuda.amp.autocast():
+                outputs=model(inputs)
+                loss=loss_fn(outputs['out'],targets)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             print('epoch={} batch={} loss={}'.format(i,batch_i,loss))
             batch_i+=1
+        torch.save(model,'seg_models/{}.pt'.format(i))
