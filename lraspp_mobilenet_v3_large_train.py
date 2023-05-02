@@ -3,7 +3,7 @@ import torchvision
 import os
 import numpy as np
 
-# 基于VOC数据集的预训练fcn语义分割模型 https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
+# 基于VOC数据集的预训练lraspp语义分割模型 https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
 from torchvision.models.segmentation import FCN_ResNet50_Weights,LRASPP_MobileNet_V3_Large_Weights
 
 '''
