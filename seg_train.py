@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     # 这个模型尺寸小，可以装进GPU，https://pytorch.org/vision/stable/models.html#table-of-all-available-semantic-segmentation-weights
     weights=LRASPP_MobileNet_V3_Large_Weights.COCO_WITH_VOC_LABELS_V1
-    model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights,skip_validation=True) 
+    model=torch.hub.load('pytorch/vision','lraspp_mobilenet_v3_large',weights=weights,skip_validation=True)
 
     # GPU
     model=model.to('cuda')
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     epoch=100
     # 大batch导致中间结果占用内存多（因为要留着做backward计算用），所以需要控好batch_size和显存的关系
     dataloader=torch.utils.data.DataLoader(dataset,batch_size=32,shuffle=True,num_workers=8,persistent_workers=True,pin_memory=True) 
-    model.train()
+    model.train() # batch normalize , dropout
     for i in range(epoch):
         batch_i=0
         for inputs,targets in dataloader:
@@ -147,7 +147,7 @@ if __name__ == '__main__':
             # optimizer.step()
             # 混合精度，降低显存压力
             with torch.cuda.amp.autocast():
-                outputs=model(inputs)
+                outputs=model(inputs) # float32 -> float16
                 loss=loss_fn(outputs['out'],targets)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
